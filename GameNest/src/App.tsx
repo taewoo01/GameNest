@@ -8,7 +8,7 @@ import GameList from './pages/GameList'
 // import PostDetail from './pages/PostDetail'
 // import SearchResults from './pages/SearchResults'
 // import CategoryPage from './pages/CategoryPage'
-// import GameDetail from './pages/GameDetail'
+import GameDetail from './pages/GameDetail'
 // import MyPosts from './pages/MyPosts'
 // import MyScraps from './pages/MyScraps'
 import LikedGames from './pages/LikedGames'
@@ -28,7 +28,7 @@ function App() {
         {/* <Route path="/community/post/:id" element={<PostDetail/>}/> */}
         {/* <Route path="/search" element={<SearchResults/>}/> */}
         {/* <Route path="/category/:categoryType/:categoryValue" element={<CategoryPage/>}/> */}
-        {/* <Route path="/game/:id" element={<GameDetail/>}/> */}
+        <Route path="/game/:id" element={<GameDetail/>}/>
         {/* <Route path="/myposts" element={<MyPosts/>}/> */}
         {/* <Route path="/scraps" element={<MyScraps/>}/> */}
         <Route path="/liked" element={<LikedGames/>}/>
