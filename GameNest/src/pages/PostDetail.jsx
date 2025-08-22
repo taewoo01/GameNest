@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { posts } from "./Community"; // ✅ Community에서 posts 가져오기
-import Comments from "../components/comments/Comments"; // ✅ 댓글 컴포넌트
+import Comments from "../components/comments/comments"; // ✅ 댓글 컴포넌트
 
 function PostDetail() {
     const { id } = useParams();
