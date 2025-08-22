@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import GameCard from './GameCard'
+import GameCard from '../components/common/GameCard'
 import { Link } from 'react-router-dom'
 
 
