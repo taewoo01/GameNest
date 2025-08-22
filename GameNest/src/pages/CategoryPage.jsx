@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
 import games from "../data/games";
-import GameCard from "../components/GameCard";
+import GameCard from "../components/common/GameCard";
 
 const CategoryPage = () => {
     const { categoryType, categoryValue } = useParams();

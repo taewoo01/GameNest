@@ -2,10 +2,10 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
 import Fuse from "fuse.js";
-import GameCard from "../components/GameCard";
+import GameCard from "../components/common/GameCard";
 
 // baseGames import
-import { baseGames } from "../components/GameList";
+import { baseGames } from "../pages/GameList";
 
 // id 추가
 const games = baseGames.map((game, index) => ({ id: index + 1, ...game }));
