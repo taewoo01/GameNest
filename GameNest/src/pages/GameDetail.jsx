@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "../App.css";
 import games from "../data/games";
-import StarRatingModal from "../modals/StarRatingModal";
+import StarRatingModal from "../components/modals/StarRatingModal";
 import ReactPlayer from "react-player";
-import Comments from "../components/Comments";
+import Comments from "../components/comments/Comments";
 
 const GameDetail = () => {
     const { id } = useParams();
