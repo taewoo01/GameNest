@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { baseGames } from "../components/GameList";
-import GameCard from "../components/GameCard";
+import { baseGames } from "../pages/GameList";
+import GameCard from "../components/common/GameCard";
 
 const games = baseGames.map((game, index) => ({ id: index + 1, ...game }));
 
