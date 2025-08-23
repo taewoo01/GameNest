@@ -13,6 +13,7 @@ import MyPosts from './pages/MyPosts'
 import MyScrapsPage from './pages/MyScraps';
 import LikedGames from './pages/LikedGames'
 import MyComments from './pages/MyComments'
+import SteamNews from './pages/SteamNews';
 
 function App() {
 
@@ -33,6 +34,7 @@ function App() {
               <Route path="myScrap" element={<MyScrapsPage/>}/>
               <Route path="/likeGame" element={<LikedGames/>}/>
               <Route path="myComment" element={<MyComments/>}/>
+              <Route path="/steamnews" element={<SteamNews />} />
           </Routes>
           </main>
       </Router>
