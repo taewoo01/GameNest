@@ -215,13 +215,13 @@ const Comments = ({ type, id, loggedUserId }: CommentProps) => {
           </div>
         )}
 
-        {comment.children?.length > 0 && (
-          <div className="mt-2 flex flex-col gap-2">
-            {comment.children.map(child => (
-              <CommentItem key={child.id} comment={child} parentId={comment.id} />
-            ))}
-          </div>
-        )}
+        {comment.children && comment.children.length > 0 && (
+        <div className="mt-2 flex flex-col gap-2">
+          {comment.children.map(child => (
+            <CommentItem key={child.id} comment={child} parentId={comment.id} />
+          ))}
+        </div>
+      )}
       </div>
     );
   };
