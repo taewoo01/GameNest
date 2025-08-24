@@ -23,6 +23,7 @@ import {
 const FontSize = Extension.create({
   name: 'fontSize',
   addOptions() { return { types: ['textStyle'] }; },
+  // @ts-expect-error: addAttributes is not in ExtensionConfig type, but is supported by tiptap
   addAttributes() {
     return {
       fontSize: {
@@ -35,7 +36,10 @@ const FontSize = Extension.create({
   },
   addCommands() {
     return {
-      setFontSize: (size: number) => ({ chain }) => chain().setMark('textStyle', { fontSize: size }).run(),
+      setFontSize:
+        (fontSize: string) =>
+        ({ chain }) =>
+          chain().setMark('textStyle', { fontSize }).run(),
     };
   },
 });
@@ -137,9 +141,17 @@ const WriteEditor: React.FC = () => {
           </label>
           <label className="relative flex items-center w-7 h-8 cursor-pointer">
             <MdFormatSize className="absolute left-0 text-gray-300" />
-            <select className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => e.target.value && editor?.chain().focus().setFontSize(Number(e.target.value)).run()}>
+            <select
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              onChange={e =>
+                e.target.value &&
+                editor?.chain().focus().setFontSize(e.target.value).run()
+              }
+            >
               <option value="">size</option>
-              {[12,14,16,18,24,32].map(s => <option key={s} value={s}>{s}</option>)}
+              {[12, 14, 16, 18, 24, 32].map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
             </select>
           </label>
           <div className="w-px h-6 bg-gray-600" />
