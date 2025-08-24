@@ -107,7 +107,7 @@ const Nav: React.FC = () => {
 
         <button onClick={toggleMenu} className="text-white text-2xl focus:outline-none">카테고리</button>
         <Link to="/community" className="text-white text-2xl">커뮤니티</Link>
-        <Link to="/news" className="text-white text-2xl">뉴스</Link>
+        <Link to="/steamnews" className="text-white text-2xl">뉴스</Link>
         <Link to="/chat" className="text-white text-2xl">채팅</Link>
 
         {userId ? (
