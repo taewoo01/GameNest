@@ -9,7 +9,7 @@ interface Game {
   game_thumbnail: string;
 }
 
-const validTypes = ["platform", "mode", "tag"]; // 허용된 타입
+const validTypes = ["platform", "mode", "tag"];
 
 export default function CategoryPage() {
   const { type, value } = useParams<{ type: string; value: string }>();
@@ -68,7 +68,7 @@ export default function CategoryPage() {
   };
 
   const sortByDate = () => {
-    const sorted = [...games].sort((a, b) => b.id - a.id); // DB created_at 없으니 임시로 id 역순
+    const sorted = [...games].sort((a, b) => b.id - a.id);
     setSortedGames(sorted);
   };
 
@@ -97,7 +97,7 @@ export default function CategoryPage() {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4 px-4">
         <h2 className="title text-2xl font-bold text-white">
-          {decodeURIComponent(value)} 게임
+          {decodeURIComponent(value ?? "")} 게임
         </h2>
         <div className="filter-wrapper relative">
           <button

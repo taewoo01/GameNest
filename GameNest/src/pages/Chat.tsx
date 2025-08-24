@@ -1,6 +1,3 @@
-
-
-
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { MessageList, Input } from "react-chat-elements";
@@ -32,19 +29,21 @@ export default function Chat() {
     const nickname = localStorage.getItem("nickname") || "익명";
     const token = localStorage.getItem("token") || "";
     if (!token) return;
-
+  
     setUser({ nickname, token });
-
+  
     const newSocket = io(import.meta.env.VITE_API_BASE_URL || "http://localhost:5000", {
-      auth: { token },
+      auth: { token: token }, // token이 빈 문자열이면 연결 안 됨
     });
-
+  
     newSocket.on("connect_error", (err) => {
       console.error("Socket 연결 에러:", err.message);
     });
-
+  
     setSocket(newSocket);
-    return () => newSocket.disconnect();
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -67,7 +66,8 @@ export default function Chat() {
 
   useEffect(() => {
     if (!socket || !user) return;
-    const handleNewMessage = (msg: any) => {
+  
+    const handleNewMessage = (msg: { user: string; text: string; date: string }) => {
       const newMsg: ChatMessage = {
         position: msg.user === user.nickname ? "right" : "left",
         type: "text",
@@ -76,9 +76,14 @@ export default function Chat() {
       };
       setChat((prev) => [...prev, newMsg]);
     };
+  
     socket.on("chat message", handleNewMessage);
-    return () => socket.off("chat message", handleNewMessage);
+  
+    return () => {
+      socket.off("chat message", handleNewMessage);
+    };
   }, [socket, user]);
+  
 
   // 채팅 업데이트마다 맨아래
   useEffect(() => {
@@ -132,11 +137,11 @@ export default function Chat() {
                 style={{ overscrollBehavior: "contain" }}
               >
                 <MessageList
-                  className="message-list"
-                  dataSource={chat}
-                  lockable={true}
+                  referance={scrollRef}
+                  dataSource={chat as any[]}
+                  lockable
                   toBottomHeight={0}
-                  style={{ backgroundColor: "transparent" }}
+                  className="bg-transparent"
                 />
               </div>
 
@@ -144,24 +149,26 @@ export default function Chat() {
               <div className="border-t border-white/5 bg-black/40 shrink-0">
                 <div className="px-2 py-2 md:px-3 md:py-2">
                   <div className="chat-input bg-[#0b1220] px-2 py-2 rounded-xl flex items-center gap-2">
-                    <Input
+                  <Input
                       placeholder="메시지를 입력하세요..."
                       value={message}
-                      onChange={(e: any) => setMessage(e.target.value)}
-                      rightButtons={
+                      onChange={(e: { target: { value: string } }) => setMessage(e.target.value)}
+                      rightButtons={[
                         <button
+                          key="send"
                           className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 transition text-white px-4 py-2 rounded-lg ml-2 shadow"
                           onClick={sendMessage}
                         >
                           전송
                         </button>
-                      }
+                      ]}
                       inputStyle={{
                         backgroundColor: "#0b1220",
                         color: "#e5e7eb",
-                        borderRadius: 12,
+                        borderRadius: "12px",
                       }}
                       className="flex-1"
+                      maxHeight={100} // 필수 prop 추가 (react-chat-elements Input)
                     />
                   </div>
                 </div>
