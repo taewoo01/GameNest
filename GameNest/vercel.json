@@ -1,14 +1,33 @@
 {
   "rewrites": [
-    { "source": "/api/auth/(.*)", "destination": "http://gamenestts.duckdns.org:5000/auth/$1" },
-    { "source": "/api/game/(.*)", "destination": "http://gamenestts.duckdns.org:5000/game/$1" },
-    { "source": "/api/community/(.*)", "destination": "http://gamenestts.duckdns.org:5000/community/$1" },
-    { "source": "/api/gameComment/(.*)", "destination": "http://gamenestts.duckdns.org:5000/gameComment/$1" },
-    { "source": "/api/communityComment/(.*)", "destination": "http://gamenestts.duckdns.org:5000/communityComment/$1" },
-    { "source": "/api/myComment/(.*)", "destination": "http://gamenestts.duckdns.org:5000/myComment/$1" },
-    { "source": "/api/myScrap/(.*)", "destination": "http://gamenestts.duckdns.org:5000/myScrap/$1" },
-    { "source": "/api/steam/(.*)", "destination": "http://gamenestts.duckdns.org:5000/steam/$1" },
-    { "source": "/api/chat/(.*)", "destination": "http://gamenestts.duckdns.org:5000/chat/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    // Auth
+    { "source": "/api/auth/:path*", "destination": "http://gamenestts.duckdns.org:5000/auth/:path*" },
+
+    // Game
+    { "source": "/api/game/:path*", "destination": "http://gamenestts.duckdns.org:5000/game/:path*" },
+
+    // Community
+    { "source": "/api/community/:path*", "destination": "http://gamenestts.duckdns.org:5000/community/:path*" },
+
+    // Game Comments
+    { "source": "/api/gameComment/:path*", "destination": "http://gamenestts.duckdns.org:5000/gameComment/:path*" },
+
+    // Community Comments
+    { "source": "/api/communityComment/:path*", "destination": "http://gamenestts.duckdns.org:5000/communityComment/:path*" },
+
+    // My Comments
+    { "source": "/api/myComment/:path*", "destination": "http://gamenestts.duckdns.org:5000/myComment/:path*" },
+
+    // My Scraps
+    { "source": "/api/myScrap/:path*", "destination": "http://gamenestts.duckdns.org:5000/myScrap/:path*" },
+
+    // Steam
+    { "source": "/api/steam/:path*", "destination": "http://gamenestts.duckdns.org:5000/steam/:path*" },
+
+    // Chat
+    { "source": "/api/chat/:path*", "destination": "http://gamenestts.duckdns.org:5000/chat/:path*" },
+
+    // 모든 나머지는 SPA index.html로
+    { "source": "/:path*", "destination": "/index.html" }
   ]
 }
