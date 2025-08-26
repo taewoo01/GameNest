@@ -1,39 +1,48 @@
-import { useState, useEffect } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { useNavigate } from 'react-router-dom';
-import { Search } from 'lucide-react';
-import axiosInstance from '../axiosInstance';
+// src/pages/MyPostsPage.tsx
+import { useState, useEffect } from "react";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
+import axiosInstance from "../axiosInstance";
 
 const PAGE_SIZE = 20;
 
+interface Post {
+  id: number;
+  title: string;
+  category: string;
+  created_at: string;
+  user_id: number;
+  views: number;
+}
+
 const MyPostsPage = () => {
-  const [displayPosts, setDisplayPosts] = useState<any[]>([]);
+  const [displayPosts, setDisplayPosts] = useState<Post[]>([]);
+  const [allPosts, setAllPosts] = useState<Post[]>([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [hasMore, setHasMore] = useState(true);
-  const [allPosts, setAllPosts] = useState<any[]>([]);
-  const [category, setCategory] = useState('전체글');
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [category, setCategory] = useState("전체글");
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const navigate = useNavigate();
 
   // ✅ 내가 쓴 게시글 불러오기
   const fetchMyPosts = async () => {
     try {
-      const res = await axiosInstance.get('/community/my-posts');
-      let posts = res.data;
+      const res = await axiosInstance.get("/community/my-posts");
+      let posts: Post[] = Array.isArray(res.data) ? res.data : [];
 
       // 카테고리 필터링
-      if (category && category !== '전체글') {
-        if (category === '인기글') {
-          posts = posts.filter((p: any) => p.views >= 50);
-        } else {
-          posts = posts.filter((p: any) => p.category === category);
-        }
+      if (category && category !== "전체글") {
+        posts =
+          category === "인기글"
+            ? posts.filter((p) => p.views >= 50)
+            : posts.filter((p) => p.category === category);
       }
 
       // 검색어 필터링
       if (searchKeyword) {
-        posts = posts.filter((p: any) =>
+        posts = posts.filter((p) =>
           p.title.toLowerCase().includes(searchKeyword.toLowerCase())
         );
       }
@@ -43,7 +52,10 @@ const MyPostsPage = () => {
       setVisibleCount(PAGE_SIZE);
       setHasMore(posts.length > PAGE_SIZE);
     } catch (err) {
-      console.error('내 게시글 불러오기 실패:', err);
+      console.error("내 게시글 불러오기 실패:", err);
+      setAllPosts([]);
+      setDisplayPosts([]);
+      setHasMore(false);
     }
   };
 
@@ -74,13 +86,13 @@ const MyPostsPage = () => {
       {/* 상단 버튼 영역 */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <div className="flex gap-2 flex-wrap">
-          {['전체글', '인기글', '자유', '질문'].map((cat) => (
+          {["전체글", "인기글", "자유", "질문"].map((cat) => (
             <button
               key={cat}
               className={`px-4 py-2 rounded-full text-sm font-medium transition ${
                 category === cat
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
               }`}
               onClick={() => setCategory(cat)}
             >
@@ -108,7 +120,9 @@ const MyPostsPage = () => {
         next={fetchMoreData}
         hasMore={hasMore}
         loader={<h4 className="text-center py-4 text-gray-400">불러오는 중...</h4>}
-        endMessage={<p className="text-center py-4 text-gray-500">모든 글을 불러왔습니다.</p>}
+        endMessage={
+          <p className="text-center py-4 text-gray-500">모든 글을 불러왔습니다.</p>
+        }
       >
         <ul className="divide-y divide-gray-700">
           {displayPosts.map((post) => (
@@ -117,7 +131,7 @@ const MyPostsPage = () => {
               onClick={() => handlePostClick(post.id)}
               className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 
                           transition rounded-md hover:bg-gray-800 cursor-pointer
-                          ${post.views >= 50 ? 'bg-orange-900 border-l-4 border-orange-500' : ''}`}
+                          ${post.views >= 50 ? "bg-orange-900 border-l-4 border-orange-500" : ""}`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 {post.views >= 50 && (

@@ -1,4 +1,4 @@
-// src/pages/MyComments.jsx
+// src/pages/MyComments.tsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../axiosInstance";
@@ -19,10 +19,12 @@ const MyComments = () => {
   // ✅ API에서 내 댓글 가져오기
   const fetchMyComments = async () => {
     try {
-      const res = await axiosInstance.get("/myComment"); // 통합 API 호출
-      setComments(res.data);
+      const res = await axiosInstance.get("/myComment");
+      const data: Comment[] = Array.isArray(res.data) ? res.data : [];
+      setComments(data);
     } catch (err) {
       console.error("내 댓글 불러오기 실패:", err);
+      setComments([]);
     } finally {
       setLoading(false);
     }
@@ -32,8 +34,10 @@ const MyComments = () => {
     fetchMyComments();
   }, []);
 
-  if (loading) return <p className="text-white text-center mt-10">불러오는 중...</p>;
-  if (comments.length === 0) return <p className="text-white text-center mt-10">댓글이 없습니다.</p>;
+  if (loading)
+    return <p className="text-white text-center mt-10">불러오는 중...</p>;
+  if (comments.length === 0)
+    return <p className="text-white text-center mt-10">댓글이 없습니다.</p>;
 
   return (
     <div className="p-[30px] max-w-[800px] mx-auto">
@@ -51,9 +55,7 @@ const MyComments = () => {
               {comment.postTitle}
             </div>
 
-            <div className="text-base text-[#ccc] mb-2">
-              {comment.content}
-            </div>
+            <div className="text-base text-[#ccc] mb-2">{comment.content}</div>
 
             <div className="text-[0.85rem] text-[#888] mb-3">
               {new Date(comment.createdAt).toLocaleDateString()}
@@ -67,7 +69,8 @@ const MyComments = () => {
               }
               className="text-[0.95rem] text-[#4ea1f3] no-underline font-medium hover:underline"
             >
-              해당 {comment.postType === "community" ? "게시글" : "게임"}으로 이동
+              해당 {comment.postType === "community" ? "게시글" : "게임"}으로
+              이동
             </Link>
           </li>
         ))}
