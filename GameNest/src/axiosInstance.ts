@@ -2,12 +2,12 @@ import axios from "axios";
 
 const baseURL =
   import.meta.env.MODE === "development"
-    ? "/api" // Vite proxy 사용
-    : import.meta.env.VITE_API_BASE_URL; // 배포 환경 공인 주소
+    ? "/api"
+    : "/api"; 
 
 const axiosInstance = axios.create({
   baseURL,
-  withCredentials: true, // 필요 없으면 제거
+  withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((config) => {
