@@ -1,7 +1,13 @@
 import axios from "axios";
 
+const baseURL =
+  import.meta.env.MODE === "development"
+    ? "/api" // Vite proxy 사용
+    : import.meta.env.VITE_API_BASE_URL; // 배포 환경 공인 주소
+
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL,
+  withCredentials: true, // 필요 없으면 제거
 });
 
 axiosInstance.interceptors.request.use((config) => {
@@ -16,11 +22,9 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // 토큰 만료 또는 인증 실패
-      // localStorage 초기화 후 로그인 모달 열기
       localStorage.removeItem("token");
       localStorage.removeItem("nickname");
-      window.dispatchEvent(new Event("tokenExpired")); // 이벤트로 모달 열기 트리거
+      window.dispatchEvent(new Event("tokenExpired"));
     }
     return Promise.reject(error);
   }
