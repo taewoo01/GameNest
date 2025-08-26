@@ -8,14 +8,15 @@ interface CommentProps {
   loggedUserId: number | null;
 }
 
+// MySQL 컬럼 구조 기준 타입 정의
 interface Comment {
-  id: number;
-  comment_content: string;
-  created_at: string;
-  user_id: number;
-  user_nickname: string;
-  parent_id: number | null;
-  children?: Comment[];
+  id: number;                   // INT, PRIMARY KEY
+  comment_content: string;       // TEXT
+  created_at: string;            // DATETIME → string
+  user_id: number;               // INT
+  user_nickname: string;         // VARCHAR
+  parent_id: number | null;      // INT NULL 가능
+  children?: Comment[];          // 프론트에서 트리 구조용
 }
 
 const Comments = ({ type, id, loggedUserId }: CommentProps) => {
@@ -35,25 +36,36 @@ const Comments = ({ type, id, loggedUserId }: CommentProps) => {
       ? `/gameComment/${id}/comments/${commentId}`
       : `/communityComment/${id}/comments/${commentId}`;
 
+  // 댓글 불러오기
   const fetchComments = async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get(getListEndpoint());
-      setComments(res.data); // ✅ API에서 트리 구조로 내려줌
+
+      const fetchedComments: Comment[] = Array.isArray(res.data) ? res.data : [];
+      const normalizeChildren = (arr: Comment[]): Comment[] =>
+        arr.map(c => ({
+          ...c,
+          children: Array.isArray(c.children) ? c.children : [],
+        }));
+
+      setComments(normalizeChildren(fetchedComments));
     } catch (err) {
       console.error("댓글 불러오기 실패:", err);
+      setComments([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // 댓글 추가
   const handleAddComment = async (content: string, parentId: number | null = null) => {
     if (!isLoggedIn) return alert("로그인 후 댓글 작성이 가능합니다.");
     if (!content.trim()) return;
 
     try {
       const res = await axiosInstance.post(getListEndpoint(), { content, parent_id: parentId });
-      const addedComment = res.data;
+      const addedComment: Comment = { ...res.data, children: [] };
 
       if (parentId) {
         setComments(prev =>
@@ -70,14 +82,19 @@ const Comments = ({ type, id, loggedUserId }: CommentProps) => {
     }
   };
 
+  // 댓글 삭제
   const handleDeleteComment = async (commentId: number, parentId: number | null = null) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
+
     try {
       await axiosInstance.delete(getItemEndpoint(commentId));
+
       if (parentId) {
         setComments(prev =>
           prev.map(c =>
-            c.id === parentId ? { ...c, children: c.children?.filter(child => child.id !== commentId) } : c
+            c.id === parentId
+              ? { ...c, children: c.children?.filter(child => child.id !== commentId) }
+              : c
           )
         );
       } else {
@@ -89,16 +106,19 @@ const Comments = ({ type, id, loggedUserId }: CommentProps) => {
     }
   };
 
+  // 댓글 수정 시작
   const handleEditStart = (comment: Comment) => {
     setEditId(comment.id);
     setEditContent(comment.comment_content);
   };
 
+  // 댓글 수정 취소
   const handleEditCancel = () => {
     setEditId(null);
     setEditContent("");
   };
 
+  // 댓글 수정 저장
   const handleEditSave = async (commentId: number) => {
     if (!editContent.trim()) return;
 
@@ -125,6 +145,7 @@ const Comments = ({ type, id, loggedUserId }: CommentProps) => {
     fetchComments();
   }, [id, type]);
 
+  // 댓글 아이템 컴포넌트
   const CommentItem = ({ comment, parentId = null }: { comment: Comment; parentId?: number | null }) => {
     const [replying, setReplying] = useState(false);
     const [replyText, setReplyText] = useState("");
@@ -177,7 +198,7 @@ const Comments = ({ type, id, loggedUserId }: CommentProps) => {
               </button>
               <button
                 onClick={() => handleDeleteComment(comment.id, parentId)}
-                className="text-blue-400 hover:text-blue-3000 text-sm"
+                className="text-blue-400 hover:text-blue-300 text-sm"
               >
                 삭제
               </button>
@@ -216,12 +237,12 @@ const Comments = ({ type, id, loggedUserId }: CommentProps) => {
         )}
 
         {comment.children && comment.children.length > 0 && (
-        <div className="mt-2 flex flex-col gap-2">
-          {comment.children.map(child => (
-            <CommentItem key={child.id} comment={child} parentId={comment.id} />
-          ))}
-        </div>
-      )}
+          <div className="mt-2 flex flex-col gap-2">
+            {comment.children.map(child => (
+              <CommentItem key={child.id} comment={child} parentId={comment.id} />
+            ))}
+          </div>
+        )}
       </div>
     );
   };

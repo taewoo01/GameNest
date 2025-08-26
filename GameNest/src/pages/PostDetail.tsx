@@ -32,19 +32,20 @@ function PostDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [post, setPost] = useState<Post | null>(null);
+  const [loading, setLoading] = useState(true);
 
   // ---------------- 게시글 조회 ----------------
   useEffect(() => {
     if (!id) return;
 
     const fetchPost = async () => {
+      setLoading(true);
       try {
         const token = localStorage.getItem("token");
         const res = await axiosInstance.get(`/community/${id}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
 
-        // boolean 보장
         const postData: Post = {
           ...res.data,
           scrapped: !!res.data.scrapped,
@@ -54,6 +55,9 @@ function PostDetail() {
         setPost(postData);
       } catch (err) {
         console.error("게시글 불러오기 실패:", err);
+        setPost(null);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -73,7 +77,6 @@ function PostDetail() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // boolean 변환
       const updatedPost: Post = {
         ...res.data,
         scrapped: !!res.data.scrapped,
@@ -85,6 +88,11 @@ function PostDetail() {
       console.error(`${type} 처리 실패:`, err);
     }
   };
+
+  if (loading)
+    return (
+      <div className="p-10 text-white text-center">게시글 불러오는 중...</div>
+    );
 
   if (!post)
     return (
@@ -151,11 +159,13 @@ function PostDetail() {
       </div>
 
       {/* ---------------- 댓글 영역 ---------------- */}
-      <Comments
-        type="community"
-        id={id!}
-        loggedUserId={getUserIdFromToken()}
-      />
+      {id && (
+        <Comments
+          type="community"
+          id={id}
+          loggedUserId={getUserIdFromToken()}
+        />
+      )}
     </div>
   );
 }

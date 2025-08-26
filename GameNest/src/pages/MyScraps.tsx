@@ -1,4 +1,4 @@
-// src/pages/MyScrapsPage.jsx
+// src/pages/MyScrapsPage.tsx
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useNavigate } from "react-router-dom";
@@ -7,11 +7,20 @@ import axiosInstance from "../axiosInstance";
 
 const PAGE_SIZE = 20;
 
+interface ScrapPost {
+  id: number;
+  title: string;
+  category: string;
+  views: number;
+  user_id: string;
+  created_at: string;
+}
+
 const MyScrapsPage = () => {
-  const [displayPosts, setDisplayPosts] = useState<any[]>([]);
+  const [displayPosts, setDisplayPosts] = useState<ScrapPost[]>([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [hasMore, setHasMore] = useState(true);
-  const [allPosts, setAllPosts] = useState<any[]>([]);
+  const [allPosts, setAllPosts] = useState<ScrapPost[]>([]);
   const [category, setCategory] = useState("전체글");
   const [searchKeyword, setSearchKeyword] = useState("");
 
@@ -21,20 +30,20 @@ const MyScrapsPage = () => {
   const fetchMyScraps = async () => {
     try {
       const res = await axiosInstance.get("/myScrap");
-      let posts = res.data;
+      let posts: ScrapPost[] = Array.isArray(res.data) ? res.data : [];
 
       // 카테고리 필터링
       if (category && category !== "전체글") {
         if (category === "인기글") {
-          posts = posts.filter((p: any) => p.views >= 50);
+          posts = posts.filter((p) => p.views >= 50);
         } else {
-          posts = posts.filter((p: any) => p.category === category);
+          posts = posts.filter((p) => p.category === category);
         }
       }
 
       // 검색어 필터링
       if (searchKeyword) {
-        posts = posts.filter((p: any) =>
+        posts = posts.filter((p) =>
           p.title.toLowerCase().includes(searchKeyword.toLowerCase())
         );
       }
@@ -45,6 +54,9 @@ const MyScrapsPage = () => {
       setHasMore(posts.length > PAGE_SIZE);
     } catch (err) {
       console.error("내 스크랩 게시글 불러오기 실패:", err);
+      setAllPosts([]);
+      setDisplayPosts([]);
+      setHasMore(false);
     }
   };
 
