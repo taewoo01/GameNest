@@ -1,31 +1,31 @@
 {
   "rewrites": [
-    { "source": "/api/auth/(.*)", "destination": "http://gamenestts.duckdns.org:5000/auth/$1" },
-    { "source": "/api/auth", "destination": "http://gamenestts.duckdns.org:5000/auth" },
+    { "source": "/api/auth/(.*)", "destination": "https://gamenest-server.onrender.com/auth/$1" },
+    { "source": "/api/auth", "destination": "https://gamenest-server.onrender.com/auth" },
 
-    { "source": "/api/game/(.*)", "destination": "http://gamenestts.duckdns.org:5000/game/$1" },
-    { "source": "/api/game", "destination": "http://gamenestts.duckdns.org:5000/game" },
+    { "source": "/api/game/(.*)", "destination": "https://gamenest-server.onrender.com/game/$1" },
+    { "source": "/api/game", "destination": "https://gamenest-server.onrender.com/game" },
 
-    { "source": "/api/community/(.*)", "destination": "http://gamenestts.duckdns.org:5000/community/$1" },
-    { "source": "/api/community", "destination": "http://gamenestts.duckdns.org:5000/community" },
+    { "source": "/api/community/(.*)", "destination": "https://gamenest-server.onrender.com/community/$1" },
+    { "source": "/api/community", "destination": "https://gamenest-server.onrender.com/community" },
 
-    { "source": "/api/gameComment/(.*)", "destination": "http://gamenestts.duckdns.org:5000/gameComment/$1" },
-    { "source": "/api/gameComment", "destination": "http://gamenestts.duckdns.org:5000/gameComment" },
+    { "source": "/api/gameComment/(.*)", "destination": "https://gamenest-server.onrender.com/gameComment/$1" },
+    { "source": "/api/gameComment", "destination": "https://gamenest-server.onrender.com/gameComment" },
 
-    { "source": "/api/communityComment/(.*)", "destination": "http://gamenestts.duckdns.org:5000/communityComment/$1" },
-    { "source": "/api/communityComment", "destination": "http://gamenestts.duckdns.org:5000/communityComment" },
+    { "source": "/api/communityComment/(.*)", "destination": "https://gamenest-server.onrender.com/communityComment/$1" },
+    { "source": "/api/communityComment", "destination": "https://gamenest-server.onrender.com/communityComment" },
 
-    { "source": "/api/myComment/(.*)", "destination": "http://gamenestts.duckdns.org:5000/myComment/$1" },
-    { "source": "/api/myComment", "destination": "http://gamenestts.duckdns.org:5000/myComment" },
+    { "source": "/api/myComment/(.*)", "destination": "https://gamenest-server.onrender.com/myComment/$1" },
+    { "source": "/api/myComment", "destination": "https://gamenest-server.onrender.com/myComment" },
 
-    { "source": "/api/myScrap/(.*)", "destination": "http://gamenestts.duckdns.org:5000/myScrap/$1" },
-    { "source": "/api/myScrap", "destination": "http://gamenestts.duckdns.org:5000/myScrap" },
+    { "source": "/api/myScrap/(.*)", "destination": "https://gamenest-server.onrender.com/myScrap/$1" },
+    { "source": "/api/myScrap", "destination": "https://gamenest-server.onrender.com/myScrap" },
 
-    { "source": "/api/steam/(.*)", "destination": "http://gamenestts.duckdns.org:5000/steam/$1" },
-    { "source": "/api/steam", "destination": "http://gamenestts.duckdns.org:5000/steam" },
+    { "source": "/api/steam/(.*)", "destination": "https://gamenest-server.onrender.com/steam/$1" },
+    { "source": "/api/steam", "destination": "https://gamenest-server.onrender.com/steam" },
 
-    { "source": "/api/chat/(.*)", "destination": "http://gamenestts.duckdns.org:5000/chat/$1" },
-    { "source": "/api/chat", "destination": "http://gamenestts.duckdns.org:5000/chat" },
+    { "source": "/api/chat/(.*)", "destination": "https://gamenest-server.onrender.com/chat/$1" },
+    { "source": "/api/chat", "destination": "https://gamenest-server.onrender.com/chat" },
 
     { "source": "/(.*)", "destination": "/index.html" }
   ]
