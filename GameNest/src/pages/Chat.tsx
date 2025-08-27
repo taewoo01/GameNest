@@ -1,7 +1,8 @@
+// src/pages/Chat.tsx
 import { useState, useEffect, useRef } from "react";
+import { io, Socket } from "socket.io-client";
 import { MessageList, Input } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
-import axiosInstance from "../axiosInstance";
 
 interface ChatMessage {
   position: "left" | "right";
@@ -10,10 +11,17 @@ interface ChatMessage {
   date: Date;
 }
 
+interface SocketChatMessage {
+  user: string;
+  text: string;
+  date: string;
+}
+
 export default function Chat() {
   const [user, setUser] = useState<{ nickname: string; token: string } | null>(null);
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState<ChatMessage[]>([]);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollToBottom = (smooth = true) => {
@@ -22,59 +30,74 @@ export default function Chat() {
     el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });
   };
 
-  // 로그인 정보 가져오기
+  // 유저 정보 & 소켓 연결
   useEffect(() => {
     const nickname = localStorage.getItem("nickname") || "익명";
     const token = localStorage.getItem("token") || "";
     if (!token) return;
+
     setUser({ nickname, token });
+
+    const newSocket = io(import.meta.env.VITE_API_BASE_URL || "http://localhost:5000", {
+      auth: { token },
+      transports: ["websocket"],
+    });
+
+    newSocket.on("connect_error", (err) => {
+      console.error("Socket 연결 에러:", err.message);
+    });
+
+    // 서버에서 이전 메시지 가져오기
+    newSocket.on("previous messages", (msgs: SocketChatMessage[]) => {
+      const formatted: ChatMessage[] = msgs.map(msg => ({
+        position: msg.user === nickname ? "right" : "left",
+        type: "text",
+        text: `${msg.user}: ${msg.text}`,
+        date: new Date(msg.date),
+      }));
+      setChat(formatted);
+      requestAnimationFrame(() => scrollToBottom(false));
+    });
+
+    setSocket(newSocket);
+    return () => {
+      newSocket.disconnect();
+    };
   }, []);
 
-  // 2초마다 메시지 폴링
+  // 실시간 새 메시지 수신
   useEffect(() => {
-    if (!user) return;
+    if (!socket || !user) return;
 
-    const fetchMessages = async () => {
-      try {
-        const res = await axiosInstance.get("/chat/messages", {
-          headers: { Authorization: `Bearer ${user.token}` },
-        });
-        const formatted: ChatMessage[] = res.data.map((msg: any) => ({
-          position: msg.user === user.nickname ? "right" : "left",
-          type: "text",
-          text: `${msg.user}: ${msg.text}`,
-          date: new Date(msg.date),
-        }));
-        setChat(formatted);
-        requestAnimationFrame(() => scrollToBottom(false));
-      } catch (err) {
-        console.error("채팅 불러오기 실패:", err);
-      }
+    const handleNewMessage = (msg: SocketChatMessage) => {
+      const newMsg: ChatMessage = {
+        position: msg.user === user.nickname ? "right" : "left",
+        type: "text",
+        text: `${msg.user}: ${msg.text}`,
+        date: new Date(msg.date),
+      };
+      setChat((prev) => [...prev, newMsg]);
+      requestAnimationFrame(() => scrollToBottom(true));
     };
 
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 2000);
-    return () => clearInterval(interval);
-  }, [user]);
+    socket.on("chat message", handleNewMessage);
 
-  const sendMessage = async () => {
-    if (!user || !message.trim()) return;
+    return () => {
+      socket.off("chat message", handleNewMessage);
+    };
+  }, [socket, user]);
 
-    try {
-      await axiosInstance.post(
-        "/chat/messages",
-        { text: message },
-        { headers: { Authorization: `Bearer ${user.token}` } }
-      );
-      setMessage("");
-    } catch (err) {
-      console.error("메시지 전송 실패:", err);
-    }
-  };
-
+  // 메시지 변경 시 자동 스크롤
   useEffect(() => {
     scrollToBottom(true);
   }, [chat]);
+
+  const sendMessage = () => {
+    if (!user || !socket || !message.trim()) return;
+    socket.emit("chat message", { text: message });
+    setMessage("");
+    requestAnimationFrame(() => scrollToBottom(true));
+  };
 
   if (!user) {
     return (
@@ -107,7 +130,6 @@ export default function Chat() {
         <div className="mx-auto w-full max-w-5xl px-4 pt-4 pb-0 h-full">
           <div className="h-full overflow-hidden rounded-2xl border border-white/5 bg-black/40 backdrop-blur-sm shadow-lg">
             <div className="h-full flex flex-col min-h-0">
-              {/* 메시지 영역 */}
               <div
                 ref={scrollRef}
                 className="flex-1 min-h-0 overflow-y-auto p-3 md:p-4"
@@ -122,7 +144,6 @@ export default function Chat() {
                 />
               </div>
 
-              {/* 입력 영역 */}
               <div className="border-t border-white/5 bg-black/40 shrink-0">
                 <div className="px-2 py-2 md:px-3 md:py-2">
                   <div className="chat-input bg-[#0b1220] px-2 py-2 rounded-xl flex items-center gap-2">
@@ -137,7 +158,7 @@ export default function Chat() {
                           onClick={sendMessage}
                         >
                           전송
-                        </button>,
+                        </button>
                       ]}
                       inputStyle={{
                         backgroundColor: "#0b1220",
@@ -155,7 +176,6 @@ export default function Chat() {
         </div>
       </main>
 
-      {/* 스타일 오버라이드 */}
       <style>{`
         .chat-input .rce-container-input,
         .chat-input .rce-input,
