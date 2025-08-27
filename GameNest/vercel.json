@@ -24,6 +24,9 @@
     { "source": "/api/steam/(.*)", "destination": "http://gamenestts.duckdns.org:5000/steam/$1" },
     { "source": "/api/steam", "destination": "http://gamenestts.duckdns.org:5000/steam" },
 
+    { "source": "/api/chat/(.*)", "destination": "http://gamenestts.duckdns.org:5000/chat/$1" },
+    { "source": "/api/chat", "destination": "http://gamenestts.duckdns.org:5000/chat" },
+
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
