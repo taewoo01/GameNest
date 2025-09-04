@@ -63,7 +63,6 @@ const GameDetail = () => {
   // 게임 상세정보 불러오기
   const fetchDetail = async () => {
     if (!id) return;
-
     try {
       setLoading(true);
       setError(null);
@@ -129,10 +128,6 @@ const GameDetail = () => {
   const uniqueValues = (value: string | string[]): string =>
     [...new Set(Array.isArray(value) ? value : [value])].join(', ');
 
-  const navigateToCategory = (type: string, value: string | string[]) => {
-    if (value) navigate(`/category/${type}/${value}`);
-  };
-
   // 미디어 처리
   let mediaUrls: string[] | null = null;
   if (typeof game?.game_media === 'string') {
@@ -169,7 +164,6 @@ const GameDetail = () => {
         height="360px"
         controls
         className="mb-6"
-        onReady={() => console.log("✅ YouTube player is ready")}
       />
 
       <table className="w-full border-collapse mb-6">
@@ -178,37 +172,88 @@ const GameDetail = () => {
             <td className="p-2 font-bold">출시일</td>
             <td className="p-2">{game.game_release_date}</td>
           </tr>
+          {/* ✅ 개발사 개별 클릭 */}
           <tr>
             <td className="p-2 font-bold">개발사</td>
-            <td className="p-2">{game.game_developer}</td>
-          </tr>
-          <tr>
-            <td
-              className="p-2 text-sky-400 cursor-pointer"
-              onClick={() => navigateToCategory('platform', game.game_platforms)}
-            >
-              플랫폼
+            <td className="p-2">
+              {Array.isArray(game.game_developer) ? (
+                game.game_developer.map((dev, idx) => (
+                  <span
+                    key={idx}
+                    className="text-sky-400 cursor-pointer hover:underline mr-2"
+                    onClick={() => navigate(`/category/developer/${encodeURIComponent(dev)}`)}
+                  >
+                    {dev}
+                  </span>
+                ))
+              ) : (
+                <span
+                  className="text-sky-400 cursor-pointer hover:underline"
+                  onClick={() => navigate(`/category/developer/${encodeURIComponent(game.game_developer)}`)}
+                >
+                  {game.game_developer}
+                </span>
+              )}
             </td>
-            <td>{uniqueValues(game.game_platforms || [])}</td>
           </tr>
+
+          {/* ✅ 플랫폼 개별 클릭 */}
           <tr>
-            <td
-              className="p-2 text-sky-400 cursor-pointer"
-              onClick={() => navigateToCategory('play', game.game_modes)}
-            >
-              플레이 방식
+            <td className="p-2 font-bold">플랫폼</td>
+            <td className="p-2 flex flex-wrap gap-2">
+              {(Array.isArray(game.game_platforms) ? game.game_platforms : [game.game_platforms]).map(
+                (platform, idx) =>
+                  platform && (
+                    <span
+                      key={idx}
+                      className="text-sky-400 cursor-pointer hover:underline"
+                      onClick={() => navigate(`/category/platform/${encodeURIComponent(platform)}`)}
+                    >
+                      {platform}
+                    </span>
+                  )
+              )}
             </td>
-            <td>{uniqueValues(game.game_modes || [])}</td>
           </tr>
+
+          {/* ✅ 플레이 방식 개별 클릭 */}
           <tr>
-            <td
-              className="p-2 text-sky-400 cursor-pointer"
-              onClick={() => navigateToCategory('tag', game.game_tags)}
-            >
-              태그
+            <td className="p-2 font-bold">플레이 방식</td>
+            <td className="p-2 flex flex-wrap gap-2">
+              {(Array.isArray(game.game_modes) ? game.game_modes : [game.game_modes]).map(
+                (mode, idx) =>
+                  mode && (
+                    <span
+                      key={idx}
+                      className="text-sky-400 cursor-pointer hover:underline"
+                      onClick={() => navigate(`/category/mode/${encodeURIComponent(mode)}`)}
+                    >
+                      {mode}
+                    </span>
+                  )
+              )}
             </td>
-            <td>{uniqueValues(game.game_tags || [])}</td>
           </tr>
+
+          {/* ✅ 태그 개별 클릭 */}
+          <tr>
+            <td className="p-2 font-bold">태그</td>
+            <td className="p-2 flex flex-wrap gap-2">
+              {(Array.isArray(game.game_tags) ? game.game_tags : [game.game_tags]).map(
+                (tag, idx) =>
+                  tag && (
+                    <span
+                      key={idx}
+                      className="text-sky-400 cursor-pointer hover:underline"
+                      onClick={() => navigate(`/category/tag/${encodeURIComponent(tag)}`)}
+                    >
+                      {tag}
+                    </span>
+                  )
+              )}
+            </td>
+          </tr>
+
           <tr>
             <td className="p-2 cursor-pointer" onClick={() => setShowModal(true)}>
               <strong>⭐ 별점:</strong>{' '}
