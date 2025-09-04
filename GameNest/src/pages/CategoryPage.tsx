@@ -9,7 +9,7 @@ interface Game {
   game_thumbnail: string;
 }
 
-const validTypes = ["platform", "mode", "tag"];
+const validTypes = ["developer", "platform", "mode", "tag"];
 
 export default function CategoryPage() {
   const { type, value } = useParams<{ type: string; value: string }>();
