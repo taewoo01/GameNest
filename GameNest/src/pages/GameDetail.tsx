@@ -125,9 +125,6 @@ const GameDetail = () => {
     }
   };
 
-  const uniqueValues = (value: string | string[]): string =>
-    [...new Set(Array.isArray(value) ? value : [value])].join(', ');
-
   // 미디어 처리
   let mediaUrls: string[] | null = null;
   if (typeof game?.game_media === 'string') {
