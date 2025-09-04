@@ -10,11 +10,78 @@ import ChangePasswordModal from "../components/modals/updatePWModal";
 import ChangePasswordNoLoginModal from "../components/modals/ChangePasswordModal";
 
 const menuData: Record<string, { type: string; items: string[] }> = {
-  "장르 별 게임": { type: "tag", items: ["액션", "어드벤쳐", "롤플레잉", "시뮬레이션", "스포츠/레이싱", "퍼즐/보드", "리듬"] },
-  "테마 별 게임": { type: "tag", items: ["판타지","공상과학","공포","역사/고대","현대/일상","디스토피아/아포칼립스","추리/스릴러","캐주얼"] },
-  "플랫폼 별 게임": { type: "platform", items: ["PC","콘솔 게임","모바일 게임","웹 게임","클라우드 게임","VR/AR 게임","아케이드 게임"] },
-  "플레이방식 별 게임": { type: "mode", items: ["LAN","MMO","로컬 및 파티","멀티","싱글","온라인 경쟁","협동"] },
-  "진행 방식 별 게임": { type: "tag", items: ["오픈월드","샌드박스","로그라이크","턴제/전략","웨이브/생존","리듬"] },
+  "개발사 별 게임": {
+    type: "developer",
+    items: [
+      "Smilegate RPG",
+      "Blizzard Entertainment",
+      "Riot Games",
+      "Respawn Entertainment",
+      "Mojang Studios",
+      "Epic Games",
+      "Innersloth",
+      "Re-Logic",
+      "Nintendo",
+      "Infinity Ward",
+      "Capcom",
+      "FromSoftware",
+      "CD Projekt RED",
+      "Naughty Dog",
+      "Valve",
+      "tobyfox",
+      "PlatinumGames",
+      "Maxis",
+      "KOG Studios",
+      "Rockstar San Diego",
+      "Rockstar Studios",
+      "Supercell",
+      "Naddic Games",
+      "Neople",
+    ],
+  },
+  "플랫폼 별 게임": {
+    type: "platform",
+    items: [
+      "PC",
+      "PS5",
+      "PS4",
+      "PS3",
+      "Xbox Series X|S",
+      "Xbox One",
+      "Xbox 360",
+      "Switch",
+      "Mobile",
+      "콘솔",
+    ],
+  },
+  "모드 별 게임": {
+    type: "mode",
+    items: ["싱글", "멀티", "싱글·멀티"],
+  },
+  "태그 별 게임": {
+    type: "tag",
+    items: [
+      "핵앤슬래시 MMORPG",
+      "핵앤슬래시 ARPG",
+      "5v5 전술 FPS",
+      "배틀로얄 FPS",
+      "6v6 팀 FPS",
+      "3D 플랫폼",
+      "오픈월드 ARPG",
+      "오픈월드 RPG",
+      "RTS",
+      "액션 어드벤처",
+      "1인칭 퍼즐",
+      "2D RPG",
+      "액션 RPG",
+      "생활 시뮬레이션",
+      "2D 액션 RPG",
+      "2.5D 액션 RPG",
+      "오픈월드 웨스턴",
+      "3v3 슈팅",
+      "소울라이크",
+    ],
+  },
 };
 
 // JWT 페이로드 안전 디코딩
@@ -167,19 +234,25 @@ const Nav: React.FC = () => {
 
       {/* 카테고리 드롭다운 */}
       {isMenuOpen && (
-        <div className="flex justify-center">
-          <div ref={menuRef} className="container w-11/12 bg-black text-gray-300 font-bold text-2xl shadow-lg rounded mt-2">
+        <div className="relative w-full">
+          <div
+            ref={menuRef}
+            className="absolute top-full left-1/2 transform -translate-x-1/2 w-11/12 bg-black text-gray-300 font-bold text-2xl shadow-lg rounded mt-2 z-50"
+          >
             <ul>
               {Object.entries(menuData).map(([category, { type, items }]) => (
                 <li key={category} className="px-4 py-2 cursor-pointer hover:bg-gray-700">
-                  <div onClick={() => handleSubMenuToggle(category)} className="flex justify-between items-center">
+                  <div
+                    onClick={() => handleSubMenuToggle(category)}
+                    className="flex justify-between items-center"
+                  >
                     {category}
                     <span>{openSubMenu === category ? "-" : "+"}</span>
                   </div>
 
                   {openSubMenu === category && (
                     <ul className="ml-4 mt-2 text-lg text-gray-400">
-                      {items.map(item => (
+                      {items.map((item) => (
                         <li key={item} className="py-1 hover:text-white">
                           <Link
                             to={`/category/${type}/${item}`}
@@ -200,6 +273,7 @@ const Nav: React.FC = () => {
           </div>
         </div>
       )}
+
 
       {/* 모달 */}
       {showLoginModal && (
