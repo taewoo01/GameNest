@@ -1,4 +1,3 @@
-// src/pages/MyPostsPage.tsx
 import { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useNavigate } from "react-router-dom";
@@ -23,46 +22,54 @@ const MyPostsPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [category, setCategory] = useState("전체글");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
   const navigate = useNavigate();
 
-  // ✅ 내가 쓴 게시글 불러오기
-  const fetchMyPosts = async () => {
-    try {
-      const res = await axiosInstance.get("/community/my-posts");
-      let posts: Post[] = Array.isArray(res.data) ? res.data : [];
-
-      // 카테고리 필터링
-      if (category && category !== "전체글") {
-        posts =
-          category === "인기글"
-            ? posts.filter((p) => p.views >= 50)
-            : posts.filter((p) => p.category === category);
-      }
-
-      // 검색어 필터링
-      if (searchKeyword) {
-        posts = posts.filter((p) =>
-          p.title.toLowerCase().includes(searchKeyword.toLowerCase())
-        );
-      }
-
-      setAllPosts(posts);
-      setDisplayPosts(posts.slice(0, PAGE_SIZE));
-      setVisibleCount(PAGE_SIZE);
-      setHasMore(posts.length > PAGE_SIZE);
-    } catch (err) {
-      console.error("내 게시글 불러오기 실패:", err);
-      setAllPosts([]);
-      setDisplayPosts([]);
-      setHasMore(false);
-    }
-  };
-
+  // ---------------- 검색 debounce ----------------
   useEffect(() => {
-    fetchMyPosts();
-  }, [category, searchKeyword]);
+    const handler = setTimeout(() => setDebouncedKeyword(searchKeyword), 500);
+    return () => clearTimeout(handler);
+  }, [searchKeyword]);
 
+  // ---------------- 게시글 불러오기 ----------------
+  useEffect(() => {
+    const fetchMyPosts = async () => {
+      try {
+        const res = await axiosInstance.get("/community/my-posts");
+        let posts: Post[] = Array.isArray(res.data) ? res.data : [];
+
+        // 카테고리 필터링
+        if (category && category !== "전체글") {
+          posts =
+            category === "인기글"
+              ? posts.filter((p) => p.views >= 50)
+              : posts.filter((p) => p.category === category);
+        }
+
+        // 검색어 필터링 (debounced)
+        if (debouncedKeyword) {
+          posts = posts.filter((p) =>
+            p.title.toLowerCase().includes(debouncedKeyword.toLowerCase())
+          );
+        }
+
+        setAllPosts(posts);
+        setDisplayPosts(posts.slice(0, PAGE_SIZE));
+        setVisibleCount(PAGE_SIZE);
+        setHasMore(posts.length > PAGE_SIZE);
+      } catch (err) {
+        console.error("내 게시글 불러오기 실패:", err);
+        setAllPosts([]);
+        setDisplayPosts([]);
+        setHasMore(false);
+      }
+    };
+
+    fetchMyPosts();
+  }, [category, debouncedKeyword]);
+
+  // ---------------- 무한 스크롤 ----------------
   const fetchMoreData = () => {
     if (visibleCount >= allPosts.length) {
       setHasMore(false);
