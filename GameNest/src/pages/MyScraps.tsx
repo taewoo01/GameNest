@@ -18,52 +18,59 @@ interface ScrapPost {
 
 const MyScrapsPage = () => {
   const [displayPosts, setDisplayPosts] = useState<ScrapPost[]>([]);
+  const [allPosts, setAllPosts] = useState<ScrapPost[]>([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [hasMore, setHasMore] = useState(true);
-  const [allPosts, setAllPosts] = useState<ScrapPost[]>([]);
   const [category, setCategory] = useState("전체글");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
   const navigate = useNavigate();
 
-  // ✅ 내가 스크랩한 게시글 불러오기
-  const fetchMyScraps = async () => {
-    try {
-      const res = await axiosInstance.get("/myScrap");
-      let posts: ScrapPost[] = Array.isArray(res.data) ? res.data : [];
-
-      // 카테고리 필터링
-      if (category && category !== "전체글") {
-        if (category === "인기글") {
-          posts = posts.filter((p) => p.views >= 50);
-        } else {
-          posts = posts.filter((p) => p.category === category);
-        }
-      }
-
-      // 검색어 필터링
-      if (searchKeyword) {
-        posts = posts.filter((p) =>
-          p.title.toLowerCase().includes(searchKeyword.toLowerCase())
-        );
-      }
-
-      setAllPosts(posts);
-      setDisplayPosts(posts.slice(0, PAGE_SIZE));
-      setVisibleCount(PAGE_SIZE);
-      setHasMore(posts.length > PAGE_SIZE);
-    } catch (err) {
-      console.error("내 스크랩 게시글 불러오기 실패:", err);
-      setAllPosts([]);
-      setDisplayPosts([]);
-      setHasMore(false);
-    }
-  };
-
+  // ---------------- 검색 debounce ----------------
   useEffect(() => {
-    fetchMyScraps();
-  }, [category, searchKeyword]);
+    const handler = setTimeout(() => setDebouncedKeyword(searchKeyword), 500);
+    return () => clearTimeout(handler);
+  }, [searchKeyword]);
 
+  // ---------------- 게시글 불러오기 ----------------
+  useEffect(() => {
+    const fetchMyScraps = async () => {
+      try {
+        const res = await axiosInstance.get("/myScrap");
+        let posts: ScrapPost[] = Array.isArray(res.data) ? res.data : [];
+
+        // 카테고리 필터링
+        if (category && category !== "전체글") {
+          posts =
+            category === "인기글"
+              ? posts.filter((p) => p.views >= 50)
+              : posts.filter((p) => p.category === category);
+        }
+
+        // 검색어 필터링 (debounced)
+        if (debouncedKeyword) {
+          posts = posts.filter((p) =>
+            p.title.toLowerCase().includes(debouncedKeyword.toLowerCase())
+          );
+        }
+
+        setAllPosts(posts);
+        setDisplayPosts(posts.slice(0, PAGE_SIZE));
+        setVisibleCount(PAGE_SIZE);
+        setHasMore(posts.length > PAGE_SIZE);
+      } catch (err) {
+        console.error("내 스크랩 게시글 불러오기 실패:", err);
+        setAllPosts([]);
+        setDisplayPosts([]);
+        setHasMore(false);
+      }
+    };
+
+    fetchMyScraps();
+  }, [category, debouncedKeyword]);
+
+  // ---------------- 무한 스크롤 ----------------
   const fetchMoreData = () => {
     if (visibleCount >= allPosts.length) {
       setHasMore(false);
@@ -120,14 +127,8 @@ const MyScrapsPage = () => {
         dataLength={displayPosts.length}
         next={fetchMoreData}
         hasMore={hasMore}
-        loader={
-          <h4 className="text-center py-4 text-gray-400">불러오는 중...</h4>
-        }
-        endMessage={
-          <p className="text-center py-4 text-gray-500">
-            모든 글을 불러왔습니다.
-          </p>
-        }
+        loader={<h4 className="text-center py-4 text-gray-400">불러오는 중...</h4>}
+        endMessage={<p className="text-center py-4 text-gray-500">모든 글을 불러왔습니다.</p>}
       >
         <ul className="divide-y divide-gray-700">
           {displayPosts.map((post) => (
@@ -140,9 +141,7 @@ const MyScrapsPage = () => {
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 {post.views >= 50 && (
-                  <span className="text-orange-400 text-sm font-semibold">
-                    🔥 인기글
-                  </span>
+                  <span className="text-orange-400 text-sm font-semibold">🔥 인기글</span>
                 )}
                 <span className="font-medium text-gray-200">{post.title}</span>
                 <span className="text-xs text-gray-400">[{post.category}]</span>
