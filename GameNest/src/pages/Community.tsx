@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import { Search } from 'lucide-react';
@@ -23,52 +23,52 @@ const BoardPage = () => {
   const [hasMore, setHasMore] = useState(true);
   const [category, setCategory] = useState('전체글');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
   // ---------------- 검색 debounce ----------------
-  const [debouncedKeyword, setDebouncedKeyword] = useState(searchKeyword);
   useEffect(() => {
     const handler = setTimeout(() => setDebouncedKeyword(searchKeyword), 500);
     return () => clearTimeout(handler);
   }, [searchKeyword]);
 
   // ---------------- 게시글 불러오기 ----------------
-  const fetchPosts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await axiosInstance.get('/community', {
-        params: { category, search: debouncedKeyword },
-      });
-
-      let posts: Post[] = res.data;
-
-      // API 응답이 배열이 아닐 경우 처리
-      if (!Array.isArray(posts) && Array.isArray((res.data as any).posts)) {
-        posts = (res.data as any).posts;
-      } else if (!Array.isArray(posts)) {
-        console.warn('게시글 데이터가 배열이 아닙니다.', res.data);
-        posts = [];
-      }
-
-      setAllPosts(posts);
-      setDisplayPosts(posts.slice(0, PAGE_SIZE));
-      setVisibleCount(PAGE_SIZE);
-      setHasMore(posts.length > PAGE_SIZE);
-    } catch (err) {
-      console.error('게시글 불러오기 실패:', err);
-      setAllPosts([]);
-      setDisplayPosts([]);
-      setHasMore(false);
-    } finally {
-      setLoading(false);
-    }
-  }, [category, debouncedKeyword]);
-
   useEffect(() => {
+    const fetchPosts = async () => {
+      setLoading(true);
+      try {
+        const res = await axiosInstance.get('/community', {
+          params: { category, search: debouncedKeyword },
+        });
+
+        let posts: Post[] = res.data;
+
+        // API 응답이 배열이 아닐 경우 처리
+        if (!Array.isArray(posts) && Array.isArray((res.data as any).posts)) {
+          posts = (res.data as any).posts;
+        } else if (!Array.isArray(posts)) {
+          console.warn('게시글 데이터가 배열이 아닙니다.', res.data);
+          posts = [];
+        }
+
+        setAllPosts(posts);
+        setDisplayPosts(posts.slice(0, PAGE_SIZE));
+        setVisibleCount(PAGE_SIZE);
+        setHasMore(posts.length > PAGE_SIZE);
+      } catch (err) {
+        console.error('게시글 불러오기 실패:', err);
+        setAllPosts([]);
+        setDisplayPosts([]);
+        setHasMore(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPosts();
-  }, [fetchPosts]);
+  }, [category, debouncedKeyword]);
 
   // ---------------- 무한 스크롤 추가 로딩 ----------------
   const fetchMoreData = () => {
